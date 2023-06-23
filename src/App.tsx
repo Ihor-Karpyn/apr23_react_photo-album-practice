@@ -1,11 +1,33 @@
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import photosFromServer from './api/photos';
-// import albumsFromServer from './api/albums';
+import albumsFromServer from './api/albums';
+import photosFromServer from './api/photos';
+import usersFromServer from './api/users';
 
 export const App: React.FC = () => {
+  const renderPhotos = () => {
+    return photosFromServer.map((photo) => {
+      const findAlbum = albumsFromServer
+        .find(album => album.id === photo.albumId);
+      const findUser = usersFromServer
+        .find(user => user.id === findAlbum?.userId);
+
+      const userSexClass = findUser?.sex === 'm'
+        ? 'has-text-link'
+        : 'has-text-danger';
+
+      return (
+        <tr key={photo.id}>
+          <td className="has-text-weight-bold">{photo.id}</td>
+          <td>{photo.title}</td>
+          <td>{findAlbum?.title}</td>
+          <td className={userSexClass}>{findUser?.name}</td>
+        </tr>
+      );
+    });
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -120,19 +142,12 @@ export const App: React.FC = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No photos matching selected criteria
-          </p>
-
-          <table
-            className="table is-striped is-narrow is-fullwidth"
-          >
+          <table className="table is-striped is-narrow is-fullwidth">
             <thead>
               <tr>
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     ID
-
                     <a href="#/">
                       <span className="icon">
                         <i data-cy="SortIcon" className="fas fa-sort" />
@@ -140,11 +155,9 @@ export const App: React.FC = () => {
                     </a>
                   </span>
                 </th>
-
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     Photo name
-
                     <a href="#/">
                       <span className="icon">
                         <i className="fas fa-sort-down" />
@@ -152,11 +165,9 @@ export const App: React.FC = () => {
                     </a>
                   </span>
                 </th>
-
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     Album name
-
                     <a href="#/">
                       <span className="icon">
                         <i className="fas fa-sort-up" />
@@ -164,11 +175,9 @@ export const App: React.FC = () => {
                     </a>
                   </span>
                 </th>
-
                 <th>
                   <span className="is-flex is-flex-wrap-nowrap">
                     User name
-
                     <a href="#/">
                       <span className="icon">
                         <i className="fas fa-sort" />
@@ -178,21 +187,7 @@ export const App: React.FC = () => {
                 </th>
               </tr>
             </thead>
-
-            <tbody>
-              <tr>
-                <td className="has-text-weight-bold">
-                  1
-                </td>
-
-                <td>accusamus beatae ad facilis cum similique qui sunt</td>
-                <td>quidem molestiae enim</td>
-
-                <td className="has-text-link">
-                  Max
-                </td>
-              </tr>
-            </tbody>
+            <tbody>{renderPhotos()}</tbody>
           </table>
         </div>
       </div>
