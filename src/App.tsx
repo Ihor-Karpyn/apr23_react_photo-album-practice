@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import React, { useState } from 'react';
 import './App.scss';
 
 import albumsFromServer from './api/albums';
@@ -6,8 +7,27 @@ import photosFromServer from './api/photos';
 import usersFromServer from './api/users';
 
 export const App: React.FC = () => {
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+
+  const handleUserFilter = (userId: number | null) => {
+    setSelectedUser(userId);
+  };
+
   const renderPhotos = () => {
-    return photosFromServer.map((photo) => {
+    let filteredPhotos = photosFromServer;
+
+    if (selectedUser !== null) {
+      filteredPhotos = filteredPhotos
+        .filter(photo => {
+          const findAlbum = albumsFromServer.find(
+            album => album.id === photo.albumId,
+          );
+
+          return findAlbum?.userId === selectedUser;
+        });
+    }
+
+    return filteredPhotos.map((photo) => {
       const findAlbum = albumsFromServer
         .find(album => album.id === photo.albumId);
       const findUser = usersFromServer
@@ -28,6 +48,11 @@ export const App: React.FC = () => {
     });
   };
 
+  const userFilters = [
+    { id: null, name: 'All' },
+    ...usersFromServer,
+  ];
+
   return (
     <div className="section">
       <div className="container">
@@ -38,30 +63,16 @@ export const App: React.FC = () => {
             <p className="panel-heading">Filters</p>
 
             <p className="panel-tabs has-text-weight-bold">
-              <a
-                href="#/"
-              >
-                All
-              </a>
-
-              <a
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                href="#/"
-              >
-                User 3
-              </a>
+              {userFilters.map((filter) => (
+                <a
+                  key={filter.id}
+                  href="#/"
+                  className={selectedUser === filter.id ? 'is-active' : ''}
+                  onClick={() => handleUserFilter(filter.id)}
+                >
+                  {filter.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -78,11 +89,7 @@ export const App: React.FC = () => {
                 </span>
 
                 <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    type="button"
-                    className="delete"
-                  />
+                  <button type="button" className="delete" />
                 </span>
               </p>
             </div>
@@ -133,7 +140,6 @@ export const App: React.FC = () => {
               <a
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
-
               >
                 Reset all filters
               </a>
