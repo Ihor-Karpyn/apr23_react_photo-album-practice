@@ -1,3 +1,4 @@
+/* eslint-disable implicit-arrow-linebreak */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState } from 'react';
 import './App.scss';
@@ -8,30 +9,46 @@ import usersFromServer from './api/users';
 
 export const App: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
+  const [searchValue, setSearchValue] = useState('');
 
   const handleUserFilter = (userId: number | null) => {
     setSelectedUser(userId);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
+  };
+
+  const handleResetFilters = () => {
+    setSelectedUser(null);
+    setSearchValue('');
   };
 
   const renderPhotos = () => {
     let filteredPhotos = photosFromServer;
 
     if (selectedUser !== null) {
-      filteredPhotos = filteredPhotos
-        .filter(photo => {
-          const findAlbum = albumsFromServer.find(
-            album => album.id === photo.albumId,
-          );
+      filteredPhotos = filteredPhotos.filter((photo) => {
+        const findAlbum = albumsFromServer.find(
+          (album) => album.id === photo.albumId,
+        );
 
-          return findAlbum?.userId === selectedUser;
-        });
+        return findAlbum?.userId === selectedUser;
+      });
+    }
+
+    if (searchValue) {
+      filteredPhotos = filteredPhotos.filter((photo) =>
+        photo.title.toLowerCase().includes(searchValue.toLowerCase()));
     }
 
     return filteredPhotos.map((photo) => {
-      const findAlbum = albumsFromServer
-        .find(album => album.id === photo.albumId);
-      const findUser = usersFromServer
-        .find(user => user.id === findAlbum?.userId);
+      const findAlbum = albumsFromServer.find(
+        (album) => album.id === photo.albumId,
+      );
+      const findUser = usersFromServer.find(
+        (user) => user.id === findAlbum?.userId,
+      );
 
       const userSexClass = findUser?.sex === 'm'
         ? 'has-text-link'
@@ -48,10 +65,7 @@ export const App: React.FC = () => {
     });
   };
 
-  const userFilters = [
-    { id: null, name: 'All' },
-    ...usersFromServer,
-  ];
+  const userFilters = [{ id: null, name: 'All' }, ...usersFromServer];
 
   return (
     <div className="section">
@@ -81,57 +95,44 @@ export const App: React.FC = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchValue}
+                  onChange={handleSearchChange}
                 />
-
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
-
-                <span className="icon is-right">
-                  <button type="button" className="delete" />
-                </span>
+                {searchValue && (
+                  <span className="icon is-right">
+                    <button
+                      type="button"
+                      className="delete"
+                      onClick={() => setSearchValue('')}
+                    />
+                  </span>
+                )}
               </p>
             </div>
 
             <div className="panel-block is-flex-wrap-wrap">
-              <a
-                href="#/"
-                className="button is-success mr-6 is-outlined"
-              >
+              <a href="#/" className="button is-success mr-6 is-outlined">
                 All
               </a>
 
-              <a
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
+              <a className="button mr-2 my-1 is-info" href="#/">
                 Album 1
               </a>
 
-              <a
-                className="button mr-2 my-1"
-                href="#/"
-              >
+              <a className="button mr-2 my-1" href="#/">
                 Album 2
               </a>
 
-              <a
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
+              <a className="button mr-2 my-1 is-info" href="#/">
                 Album 3
               </a>
-              <a
-                className="button mr-2 my-1"
-                href="#/"
-              >
+              <a className="button mr-2 my-1" href="#/">
                 Album 4
               </a>
-              <a
-                className="button mr-2 my-1"
-                href="#/"
-              >
+              <a className="button mr-2 my-1" href="#/">
                 Album 5
               </a>
             </div>
@@ -140,8 +141,9 @@ export const App: React.FC = () => {
               <a
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleResetFilters}
               >
-                Reset all filters
+                Reset All Filters
               </a>
             </div>
           </nav>
